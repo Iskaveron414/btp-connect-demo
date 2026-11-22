@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BTP Connect</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#202a35}
+header{background:#153c35;color:white;padding:22px 18px}
+header h1{margin:0;font-size:25px}
+header p{margin:7px 0 0;color:#d3e4dd;font-size:13px}
+main{max-width:760px;margin:auto;padding:17px}
+h2{font-size:19px}
+.search{width:100%;padding:14px;border:1px solid #ddd;border-radius:10px;font-size:15px;margin:8px 0 15px}
+.categories{display:flex;gap:8px;overflow:auto;padding-bottom:8px}
+.categories button,.nav button{border:0;border-radius:20px;padding:10px 14px;background:#e4ebe8;color:#23483e;white-space:nowrap}
+.categories button.active,.nav button.active{background:#17634e;color:white}
+.card{background:white;padding:15px;border-radius:13px;margin:12px 0;box-shadow:0 2px 9px #0000000b}
+.card h3{margin:0 0 7px;font-size:16px}
+.price{font-weight:bold;color:#17634e;font-size:19px;margin:10px 0}
+.muted{color:#77818a;font-size:13px}
+.tag{font-size:11px;background:#e7f3ed;color:#17634e;padding:5px 8px;border-radius:20px}
+button.primary{background:#17634e;color:white;border:0;padding:13px 16px;border-radius:9px;font-weight:bold}
+.nav{display:flex;gap:7px;overflow:auto;margin:16px 0}
+.panel{display:none}
+.panel.active{display:block}
+input,select,textarea{width:100%;padding:12px;border:1px solid #d9dfe2;border-radius:9px;margin:7px 0 13px;font-size:15px;background:white}
+label{font-size:13px;font-weight:bold}
+footer{text-align:center;color:#89929a;font-size:12px;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<h1>🏗️ BTP CONNECT</h1>
+<p>Vos matériaux de construction, en un seul endroit.</p>
+<p>📍 Bobo-Dioulasso, Burkina Faso</p>
+</header>
+
+<main>
+<div class="nav">
+<button class="active" onclick="showTab('home',this)">Accueil</button>
+<button onclick="showTab('need',this)">Publier un besoin</button>
+<button onclick="showTab('sell',this)">Espace fournisseur</button>
+</div>
+
+<section id="home" class="panel active">
+<h2>Trouvez vos matériaux</h2>
+<input class="search" id="search" placeholder="Rechercher du ciment, du fer..." oninput="render()">
+
+<div class="categories">
+<button class="active" onclick="filter('Tous',this)">Tous</button>
+<button onclick="filter('Ciment',this)">Ciment</button>
+<button onclick="filter('Fer à béton',this)">Fer à béton</button>
+<button onclick="filter('Sable',this)">Sable</button>
+<button onclick="filter('Gravier',this)">Gravier</button>
+</div>
+
+<h2>Offres disponibles</h2>
+<div id="offers"></div>
+<p class="muted">⚠️ Démonstration : les fournisseurs et les prix affichés sont fictifs.</p>
+</section>
+
+<section id="need" class="panel">
+<h2>Publier un besoin</h2>
+<p class="muted">Décrivez les matériaux que vous recherchez. Les fournisseurs pourront vous faire une proposition.</p>
+<form onsubmit="sendNeed(event)">
+<label>Votre nom</label>
+<input required placeholder="Nom complet">
+<label>Matériau recherché</label>
+<select required>
+<option value="">Choisir un matériau</option>
+<option>Ciment CPA45</option>
+<option>Ciment CPJ45</option>
+<option>Fer à béton</option>
+<option>Sable</option>
+<option>Gravier</option>
+</select>
+<label>Quantité souhaitée</label>
+<input required placeholder="Ex : 30 tonnes">
+<label>Votre numéro de téléphone</label>
+<input required type="tel" placeholder="70 00 00 00">
+<label>Précisions</label>
+<textarea placeholder="Votre besoin, votre quartier..."></textarea>
+<button class="primary">Envoyer ma demande</button>
+</form>
+</section>
+
+<section id="sell" class="panel">
+<h2>Espace fournisseur</h2>
+<p class="muted">Proposez vos matériaux aux acheteurs de Bobo-Dioulasso.</p>
+<form onsubmit="sendOffer(event)">
+<label>Nom de votre entreprise</label>
+<input required placeholder="Nom de la quincaillerie">
+<label>Matériau proposé</label>
+<select required>
+<option value="">Choisir un matériau</option>
+<option>Ciment CPA45</option>
+<option>Ciment CPJ45</option>
+<option>Fer à béton</option>
+<option>Sable</option>
+<option>Gravier</option>
+</select>
+<label>Prix en F CFA</label>
+<input required type="number" placeholder="Ex : 115000">
+<label>Téléphone</label>
+<input required type="tel" placeholder="Votre numéro">
+<button class="primary">Soumettre mon offre</button>
+</form>
+<p class="muted">Toute nouvelle offre devra être vérifiée et approuvée par l'administrateur avant publication.</p>
+</section>
+</main>
+
+<footer>BTP Connect · Construisons ensemble.</footer>
+
+<script>
+const data=[
+{name:"Ciment CPA45",category:"Ciment",price:115000,supplier:"Fournisseur Démo 1"},
+{name:"Ciment CPJ45",category:"Ciment",price:100000,supplier:"Fournisseur Démo 2"},
+{name:"Fer à béton",category:"Fer à béton",price:7500,supplier:"Fournisseur Démo 3"},
+{name:"Sable",category:"Sable",price:35000,supplier:"Fournisseur Démo 4"},
+{name:"Gravier",category:"Gravier",price:45000,supplier:"Fournisseur Démo 5"}
+];
+let selected="Tous";
+
+function render(){
+const term=document.getElementById("search").value.toLowerCase();
+const list=data.filter(x=>(selected==="Tous"||x.category===selected)&&
+(x.name.toLowerCase().includes(term)||x.supplier.toLowerCase().includes(term)));
+document.getElementById("offers").innerHTML=list.length?list.map(x=>`
+<div class="card">
+<span class="tag">Exemple fictif</span>
+<h3>${x.name}</h3>
+<div class="price">${x.price.toLocaleString("fr-FR")} F CFA</div>
+<div class="muted">${x.supplier} · Bobo-Dioulasso</div>
+</div>`).join(""):"<p>Aucune offre trouvée.</p>";
+}
+function filter(category,button){
+selected=category;
+document.querySelectorAll(".categories button").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+render();
+}
+function showTab(id,button){
+document.querySelectorAll(".panel").forEach(p=>p.classList.remove("active"));
+document.getElementById(id).classList.add("active");
+document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+button.classList.add("active");
+}
+function sendNeed(e){
+e.preventDefault();
+alert("Demande de démonstration enregistrée dans cette session. Elle n'a pas été envoyée à un serveur.");
+e.target.reset();
+}
+function sendOffer(e){
+e.preventDefault();
+alert("Offre de démonstration soumise. Dans la vraie application, elle devra être validée par l'administrateur.");
+e.target.reset();
+}
+render();
+</script>
+</body>
+</html>
